@@ -1,37 +1,43 @@
 package com.example.smartdevicesroutine.screen
 
 import android.app.TimePickerDialog
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.smartdevicesroutine.Util.DeviceType
 import com.example.smartdevicesroutine.model.Routine
 import com.example.smartdevicesroutine.model.SmartDevice
 import java.time.LocalTime
@@ -39,7 +45,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddRoutineScreen(navController: NavHostController, mainViewModel: MainViewModel) {
+fun AddRoutineScreen(navController: NavController, mainViewModel: MainViewModel) {
     Scaffold(topBar = {
         TopAppBar(
             title = { Text("Add Routine") },
@@ -72,6 +78,13 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
     var startTime by remember { mutableStateOf(LocalTime.now()) }
     var endTime by remember { mutableStateOf<LocalTime?>(null) }
     var isToggled by remember { mutableStateOf(false) }
+    var valueLabel by remember { mutableStateOf("") }
+
+    if (selectedOption.equals(DeviceType.THERMOSTAT.name, true)) {
+        valueLabel = "Temperature"
+    } else if (selectedOption.equals(DeviceType.BULB.name, true)) {
+        valueLabel = "Brightness"
+    }
 
     // Dropdown
     var expanded by remember { mutableStateOf(false) }
@@ -94,13 +107,14 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
 
     Column(modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp)) {
+        .padding(16.dp)
+    ) {
 
         // Name (Single line)
         TextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
+            label = { Text("Title") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -118,10 +132,20 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        DropDownFun() { value ->
+        DropDownFun { value ->
             selectedOption = value
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Value (According to the Device/Service)
+        TextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text(valueLabel) },
+            maxLines = 1,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -131,7 +155,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             Text("Start Time: ${startTime.format(timeFormatter)}")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         // End Time Selection
         TextButton(onClick = { /* Handle End Time Picker */ }) {
@@ -142,10 +166,13 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
 
         // Switch for Toggle
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .padding(6.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Toggle")
+            Text("Enable")
             Switch(
                 checked = isToggled,
                 onCheckedChange = { isToggled = it }
@@ -162,7 +189,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             )
             val device = SmartDevice(
                 name = selectedOption,
-                type = "Test",
+                type = selectedOption,
                 isEnabled = true,
                 routine = routine,
                 value = ""
@@ -171,7 +198,9 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
         // Save Button
         Button(
             onClick = { saveRoutine(mainViewModel, device, navController) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
         ) {
             Text("Save")
         }
@@ -190,17 +219,20 @@ fun DropDownFun(
 
     var dropControl by remember { mutableStateOf(false) }
     var selectIndex by remember { mutableIntStateOf(0) }
-    var countryList = listOf("Turkey", "Germany", "France", "Italy","Canada")
+    var countryList = listOf("Smart Watch", "Camera", "Bulb", "Thermostat","Air Conditioner")
 
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
 
-        OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+        OutlinedCard(modifier = Modifier
+            .fillMaxWidth()
+            .clickable {  }
+        ) {
             Row(horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .wrapContentWidth()
+                    .fillMaxWidth()
                     .height(50.dp)
                     .padding(15.dp)
                     .clickable {
