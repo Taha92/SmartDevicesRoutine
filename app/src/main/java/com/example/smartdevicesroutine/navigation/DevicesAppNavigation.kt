@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.smartdevicesroutine.screen.AddRoutineScreen
 import com.example.smartdevicesroutine.screen.HomeScreen
 import com.example.smartdevicesroutine.screen.MainViewModel
 
@@ -19,6 +20,11 @@ fun DevicesAppNavigation() {
         composable(DevicesAppScreens.HomeScreen.name) {
             val mainViewModel = hiltViewModel<MainViewModel>()
             HomeScreen(navController = navController, mainViewModel)
+        }
+
+        composable(DevicesAppScreens.AddRoutineScreen.name) {
+            val mainViewModel = hiltViewModel<MainViewModel>()
+            AddRoutineScreen(navController = navController, mainViewModel)
         }
     }
 }

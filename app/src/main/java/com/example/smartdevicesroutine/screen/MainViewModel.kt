@@ -54,6 +54,7 @@ class MainViewModel @Inject constructor(
     fun addSmartDevice(device: SmartDevice) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertDevice(device)
+            Log.d("TAG", "addSmartDevice: Successfully Inserted@")
         }
     }
 

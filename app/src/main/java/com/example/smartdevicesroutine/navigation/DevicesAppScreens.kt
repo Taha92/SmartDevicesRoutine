@@ -1,14 +1,16 @@
 package com.example.smartdevicesroutine.navigation
 
 enum class DevicesAppScreens {
-    ShoppingSplashScreen,
-    HomeScreen;
+    SplashScreen,
+    HomeScreen,
+    AddRoutineScreen;
 
     companion object {
         fun fromRoute(route: String?): DevicesAppScreens
                 = when(route?.substringBefore("/")) {
-            ShoppingSplashScreen.name -> ShoppingSplashScreen
+            SplashScreen.name -> SplashScreen
             HomeScreen.name -> HomeScreen
+            AddRoutineScreen.name -> AddRoutineScreen
             null -> HomeScreen
             else -> throw IllegalArgumentException("Route $route is not recognized")
         }

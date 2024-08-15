@@ -2,6 +2,7 @@ package com.example.smartdevicesroutine.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +24,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.smartdevicesroutine.model.Routine
 import com.example.smartdevicesroutine.model.SmartDevice
+import com.example.smartdevicesroutine.model.SmartModel
+import com.example.smartdevicesroutine.navigation.DevicesAppScreens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +45,7 @@ fun HomeScreen(navController: NavHostController, viewModel: MainViewModel) {
             // Add Routine Button
             FloatingActionButton(onClick = {
                 // Navigate to Routine Creation Screen
+                navController.navigate(DevicesAppScreens.AddRoutineScreen.name)
             }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add Routine")
             }
@@ -57,7 +62,9 @@ fun HomeScreen(navController: NavHostController, viewModel: MainViewModel) {
 
 @Composable
 fun HomeContent(smartDevices: List<SmartDevice>, viewModel: MainViewModel) {
-    Column {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+    ) {
         LazyColumn {
             items(smartDevices) { device ->
                 SmartDeviceItem(device, viewModel)
@@ -69,13 +76,39 @@ fun HomeContent(smartDevices: List<SmartDevice>, viewModel: MainViewModel) {
 
 @Composable
 fun SmartDeviceItem(device: SmartDevice, viewModel: MainViewModel) {
-    Card(modifier = Modifier.padding(8.dp)) {
+    Card(modifier = Modifier
+        .fillMaxWidth()
+        .padding(8.dp)
+    ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Text(text = device.name, style = MaterialTheme.typography.titleMedium)
+            Text(text = device.routine.description, style = MaterialTheme.typography.titleMedium)
             Text(text = device.type)
+            device.performAction()
             Switch(checked = device.isEnabled, onCheckedChange = { newStatus ->
-                viewModel.updateSmartDevice(device.copy(isEnabled = newStatus))
+                device.performAction()
+                //viewModel.updateSmartDevice(device.copy(isEnabled = newStatus))
             })
+        }
+    }
+}
+
+
+
+
+class SmartThermostat(id: Int, name: String, isEnabled: Boolean, var temperature: Int) : SmartModel(name, isEnabled) {
+
+    // Update temperature
+    fun updateTemperature(newTemperature: Int) {
+        temperature = newTemperature
+        println("$name temperature set to $newTemperature°C")
+    }
+
+    override fun performAction() {
+        if (isEnabled) {
+            println("$name is adjusting the temperature to $temperature°C")
+        } else {
+            println("$name is disabled")
         }
     }
 }
