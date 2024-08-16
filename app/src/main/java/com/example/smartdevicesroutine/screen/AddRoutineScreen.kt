@@ -74,25 +74,23 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedOption by remember { mutableStateOf("Option 1") }
-    val options = listOf("Option 1", "Option 2", "Option 3")
     var startTime by remember { mutableStateOf(LocalTime.now()) }
     var endTime by remember { mutableStateOf<LocalTime?>(null) }
     var isToggled by remember { mutableStateOf(false) }
     var valueLabel by remember { mutableStateOf("") }
+    var commandValue by remember { mutableStateOf("") }
+    // State for managing the TimePickerDialog visibility
+    var showStartTimePicker by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    if (selectedOption.equals(DeviceType.THERMOSTAT.name, true)) {
+
+    if (selectedOption.equals(DeviceType.THERMOSTAT.name, true) || selectedOption.equals(DeviceType.AIR_CONDITIONER.name, true)) {
         valueLabel = "Temperature"
     } else if (selectedOption.equals(DeviceType.BULB.name, true)) {
         valueLabel = "Brightness"
+    }  else if (selectedOption.equals(DeviceType.SMART_WATCH.name, true)) {
+        valueLabel = "News"
     }
-
-    // Dropdown
-    var expanded by remember { mutableStateOf(false) }
-    var selectIndex by remember { mutableIntStateOf(0) }
-
-    // State for managing the TimePickerDialog visibility
-    val context = LocalContext.current
-    var showStartTimePicker by remember { mutableStateOf(false) }
 
     if (showStartTimePicker) {
         TimePickerDialog(
@@ -110,7 +108,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
         .padding(16.dp)
     ) {
 
-        // Name (Single line)
+        // Routine Title
         TextField(
             value = name,
             onValueChange = { name = it },
@@ -121,7 +119,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Description (Multi line)
+        // Routine Command (e.g: Set temperature of living room)
         TextField(
             value = description,
             onValueChange = { description = it },
@@ -132,7 +130,8 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        DropDownFun { value ->
+        // List of smart devices/services
+        SmartDevicesDropDown { value ->
             selectedOption = value
         }
 
@@ -140,8 +139,8 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
 
         // Value (According to the Device/Service)
         TextField(
-            value = description,
-            onValueChange = { description = it },
+            value = commandValue,
+            onValueChange = { commandValue = it },
             label = { Text(valueLabel) },
             maxLines = 1,
             modifier = Modifier.fillMaxWidth()
@@ -192,7 +191,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
                 type = selectedOption,
                 isEnabled = true,
                 routine = routine,
-                value = ""
+                value = commandValue
             )
 
         // Save Button
@@ -213,13 +212,13 @@ fun saveRoutine(mainViewModel: MainViewModel, device: SmartDevice, navController
 }
 
 @Composable
-fun DropDownFun(
+fun SmartDevicesDropDown(
     onTextChange: (String) -> Unit,
 ) {
 
     var dropControl by remember { mutableStateOf(false) }
     var selectIndex by remember { mutableIntStateOf(0) }
-    var countryList = listOf("Smart Watch", "Camera", "Bulb", "Thermostat","Air Conditioner")
+    val countryList = listOf("Smart Watch", "Bulb", "Thermostat", "Air Conditioner", "Weather")
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -227,7 +226,7 @@ fun DropDownFun(
 
         OutlinedCard(modifier = Modifier
             .fillMaxWidth()
-            .clickable {  }
+            .clickable { dropControl = true }
         ) {
             Row(horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -235,15 +234,16 @@ fun DropDownFun(
                     .fillMaxWidth()
                     .height(50.dp)
                     .padding(15.dp)
-                    .clickable {
-                        dropControl = true
-                    }) {
+            ) {
 
                 Text(text = countryList[selectIndex])
 
             }
 
-            DropdownMenu(expanded = dropControl, onDismissRequest = { dropControl = false}) {
+            DropdownMenu(modifier = Modifier
+                .fillMaxWidth(),
+                expanded = dropControl,
+                onDismissRequest = { dropControl = false}) {
 
                 countryList.forEachIndexed { index, strings ->
                     DropdownMenuItem(
@@ -257,7 +257,6 @@ fun DropDownFun(
                             onTextChange.invoke(strings)
                         })
                 }
-
             }
         }
     }

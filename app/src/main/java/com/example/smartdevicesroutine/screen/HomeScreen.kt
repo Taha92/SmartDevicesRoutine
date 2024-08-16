@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
@@ -97,22 +96,20 @@ fun HomeContent(smartDevices: List<SmartDevice>, viewModel: MainViewModel) {
         }
     }
 
-    // Full-screen modal for editing routine details
+    // Bottom modal for editing routine details
     if (showModal && selectedRoutine != null) {
-        /*EditRoutineModal(
-            routine = selectedRoutine!!,
-            onDismiss = { showModal = false },
-            onSave = { updatedRoutine ->
-                // Update the routine in your list or database
-                showModal = false
-            }
-        )*/
 
         BottomModal(
             routine = selectedRoutine!!,
             onDismiss = { showModal = false },
             onSave = { updatedRoutine ->
-                // Update the routine in your list or database
+                // Update the routine in database
+                viewModel.updateSmartDevice(
+                    updatedRoutine.copy(
+                        value = updatedRoutine.value,
+                        routine = updatedRoutine.routine.copy(description = updatedRoutine.routine.description)
+                    )
+                )
                 showModal = false
             }
         )
@@ -136,18 +133,28 @@ fun SmartDeviceItem(
             Text(text = device.routine.name, style = MaterialTheme.typography.bodyMedium)
             Text(text = device.routine.description, style = MaterialTheme.typography.titleMedium)
             Text(text = device.name)
+            Text(text = device.value)
 
             //device.performAction()
             //Toast.makeText(context, device.updateValue(device.type, 22), Toast.LENGTH_SHORT).show()
 
-            Switch(checked = device.isEnabled, onCheckedChange = { newStatus ->
-                if (newStatus) {
-                    device.enable()
-                } else {
-                    device.disable()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(onClick = { device.performAction() }) {
+                    Text(text = "Perform Action")
                 }
-                viewModel.updateSmartDevice(device.copy(isEnabled = newStatus))
-            })
+                Switch(checked = device.isEnabled, onCheckedChange = { newStatus ->
+                    if (newStatus) {
+                        device.enable()
+                    } else {
+                        device.disable()
+                    }
+                    viewModel.updateSmartDevice(device.copy(isEnabled = newStatus))
+                })
+            }
         }
     }
 }
@@ -235,6 +242,7 @@ fun BottomModal(
 ) {
     val sheetState = rememberModalBottomSheetState()
     var routineName by remember { mutableStateOf(routine.routine.description) }
+    var routineValue by remember { mutableStateOf(routine.value) }
 
     Column(
         modifier = Modifier
@@ -272,8 +280,8 @@ fun BottomModal(
                     modifier = Modifier
                         .padding(start = 6.dp, end = 6.dp)
                         .fillMaxWidth(),
-                    value = "Value",
-                    onValueChange = { /*routineName = it*/ },
+                    value = routineValue,
+                    onValueChange = { routineValue = it },
                     label = { Text("Value") }
                 )
 

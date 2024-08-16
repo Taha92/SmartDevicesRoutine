@@ -10,7 +10,7 @@ data class SmartDevice(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
 
     @ColumnInfo(name = "name")
-    override val name: String, // Living Room Lights
+    override val name: String, // Morning Routine
 
     @ColumnInfo(name = "type")
     val type: String, // Device type SMART_WATCH, CAMERA, BULB
@@ -23,6 +23,7 @@ data class SmartDevice(
 
     @ColumnInfo(name = "value")
     val value: String
+
 ): SmartModel(name, isEnabled) {
     override fun performAction() {
         if (isEnabled) {
