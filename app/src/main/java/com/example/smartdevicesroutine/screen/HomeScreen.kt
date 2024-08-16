@@ -1,5 +1,6 @@
 package com.example.smartdevicesroutine.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -104,12 +105,7 @@ fun HomeContent(smartDevices: List<SmartDevice>, viewModel: MainViewModel) {
             onDismiss = { showModal = false },
             onSave = { updatedRoutine ->
                 // Update the routine in database
-                viewModel.updateSmartDevice(
-                    updatedRoutine.copy(
-                        value = updatedRoutine.value,
-                        routine = updatedRoutine.routine.copy(description = updatedRoutine.routine.description)
-                    )
-                )
+                viewModel.updateSmartDevice(updatedRoutine)
                 showModal = false
             }
         )
@@ -122,6 +118,7 @@ fun SmartDeviceItem(
     viewModel: MainViewModel,
     onRoutineClick: () -> Unit
 ) {
+    var isEnabled by remember { mutableStateOf(device.isEnabled) }
     val context = LocalContext.current
 
     Card(modifier = Modifier
@@ -138,15 +135,21 @@ fun SmartDeviceItem(
             //device.performAction()
             //Toast.makeText(context, device.updateValue(device.type, 22), Toast.LENGTH_SHORT).show()
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(onClick = { device.performAction() }) {
+                Button(onClick = {
+                    device.performAction()
+                    Toast.makeText(context, device.performAction(), Toast.LENGTH_SHORT).show()
+                }) {
                     Text(text = "Perform Action")
                 }
-                Switch(checked = device.isEnabled, onCheckedChange = { newStatus ->
+                Switch(checked = isEnabled, onCheckedChange = { newStatus ->
+                    isEnabled = newStatus
                     if (newStatus) {
                         device.enable()
                     } else {
@@ -154,80 +157,6 @@ fun SmartDeviceItem(
                     }
                     viewModel.updateSmartDevice(device.copy(isEnabled = newStatus))
                 })
-            }
-        }
-    }
-}
-
-
-
-
-class SmartThermostat(id: Int, name: String, isEnabled: Boolean, var temperature: Int) : SmartModel(name, isEnabled) {
-
-    // Update temperature
-    fun updateTemperature(newTemperature: Int) {
-        temperature = newTemperature
-        println("$name temperature set to $newTemperature°C")
-    }
-
-    override fun performAction() {
-        if (isEnabled) {
-            println("$name is adjusting the temperature to $temperature°C")
-        } else {
-            println("$name is disabled")
-        }
-    }
-}
-
-@Composable
-fun EditRoutineModal(
-    routine: SmartDevice,
-    onDismiss: () -> Unit,
-    onSave: (Routine) -> Unit
-) {
-    var routineName by remember { mutableStateOf(routine.name) }
-
-    // Editable fields for the routine's properties
-    Dialog(onDismissRequest = { onDismiss() }) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxSize(),
-            color = Color.White
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(text = "Edit Routine", style = MaterialTheme.typography.bodyMedium)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = routineName,
-                    onValueChange = { routineName = it },
-                    label = { Text("Routine Name") }
-                )
-
-                // Add more fields for editing actions, times, etc.
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(onClick = { onDismiss() }) {
-                        Text(text = "Cancel")
-                    }
-                    Button(onClick = {
-                        // Save the updated routine
-                        //val updatedRoutine = routine.copy(name = routineName)
-                        //onSave(updatedRoutine)
-                    }) {
-                        Text(text = "Save")
-                    }
-                }
             }
         }
     }
@@ -243,6 +172,7 @@ fun BottomModal(
     val sheetState = rememberModalBottomSheetState()
     var routineName by remember { mutableStateOf(routine.routine.description) }
     var routineValue by remember { mutableStateOf(routine.value) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -269,6 +199,7 @@ fun BottomModal(
                     modifier = Modifier
                         .padding(start = 6.dp, end = 6.dp)
                         .fillMaxWidth(),
+                    maxLines = 1,
                     value = routineName,
                     onValueChange = { routineName = it },
                     label = { Text("Description") }
@@ -280,6 +211,7 @@ fun BottomModal(
                     modifier = Modifier
                         .padding(start = 6.dp, end = 6.dp)
                         .fillMaxWidth(),
+                    maxLines = 1,
                     value = routineValue,
                     onValueChange = { routineValue = it },
                     label = { Text("Value") }
@@ -292,8 +224,12 @@ fun BottomModal(
                     .fillMaxWidth(),
                     onClick = {
                         // Save the updated routine
-                        val updatedRoutine = routine.copy(name = routineName)
+                        val updatedRoutine = routine.copy(
+                            value = routineValue,
+                            routine = routine.routine.copy(description = routineName)
+                        )
                         onSave(updatedRoutine)
+                        Toast.makeText(context, routine.updateValue(routine.type, routineValue), Toast.LENGTH_SHORT).show()
                     }) {
                     Text(
                         text = "Save",

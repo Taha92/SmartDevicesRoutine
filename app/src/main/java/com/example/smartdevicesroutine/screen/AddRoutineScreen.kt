@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,6 +44,7 @@ import com.example.smartdevicesroutine.model.Routine
 import com.example.smartdevicesroutine.model.SmartDevice
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,12 +87,14 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
     val context = LocalContext.current
 
 
-    if (selectedOption.equals(DeviceType.THERMOSTAT.name, true) || selectedOption.equals(DeviceType.AIR_CONDITIONER.name, true)) {
-        valueLabel = "Temperature"
-    } else if (selectedOption.equals(DeviceType.BULB.name, true)) {
-        valueLabel = "Brightness"
-    }  else if (selectedOption.equals(DeviceType.SMART_WATCH.name, true)) {
-        valueLabel = "News"
+    if (selectedOption.equals(DeviceType.THERMOSTAT.label, true) || selectedOption.equals(DeviceType.AIR_CONDITIONER.label, true)) {
+        valueLabel = "e.g: 10 °C"
+    } else if (selectedOption.equals(DeviceType.BULB.label, true) || selectedOption.equals(DeviceType.SMART_WATCH.label, true)) {
+        valueLabel = "e.g: 25"
+    }  else if (selectedOption.equals(DeviceType.NEWS.label, true)) {
+        valueLabel = "e.g: World Health Day"
+    }  else if (selectedOption.equals(DeviceType.WEATHER.label, true)) {
+        valueLabel = "e.g: Cloudy"
     }
 
     if (showStartTimePicker) {
@@ -124,7 +129,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             value = description,
             onValueChange = { description = it },
             label = { Text("Description") },
-            maxLines = 2,
+            maxLines = 1,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -141,7 +146,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
         TextField(
             value = commandValue,
             onValueChange = { commandValue = it },
-            label = { Text(valueLabel) },
+            label = { Text(valueLabel.ifEmpty { "e.g: 25" }) },
             maxLines = 1,
             modifier = Modifier.fillMaxWidth()
         )
@@ -151,14 +156,20 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
         // Start Time Selection
         val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         TextButton(onClick = { showStartTimePicker = true }) {
-            Text("Start Time: ${startTime.format(timeFormatter)}")
+            Text(
+                "Start Time: ${startTime.format(timeFormatter)}",
+                style = MaterialTheme.typography.titleMedium
+            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
         // End Time Selection
         TextButton(onClick = { /* Handle End Time Picker */ }) {
-            Text("End Time: ${endTime?.format(timeFormatter) ?: "Not set"}")
+            Text(
+                "End Time: ${endTime?.format(timeFormatter) ?: "Not set"}",
+                style = MaterialTheme.typography.titleMedium
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -166,12 +177,12 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
         // Switch for Toggle
         Row(
             modifier = Modifier
-                .padding(6.dp)
+                .padding(start = 10.dp, end = 6.dp, bottom = 6.dp, top = 6.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Enable")
+            Text("On / Off")
             Switch(
                 checked = isToggled,
                 onCheckedChange = { isToggled = it }
@@ -189,7 +200,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             val device = SmartDevice(
                 name = selectedOption,
                 type = selectedOption,
-                isEnabled = true,
+                isEnabled = isToggled,
                 routine = routine,
                 value = commandValue
             )
@@ -218,7 +229,10 @@ fun SmartDevicesDropDown(
 
     var dropControl by remember { mutableStateOf(false) }
     var selectIndex by remember { mutableIntStateOf(0) }
-    val countryList = listOf("Smart Watch", "Bulb", "Thermostat", "Air Conditioner", "Weather")
+
+    val deviceList = listOf(DeviceType.SMART_WATCH.label, DeviceType.BULB.label,
+        DeviceType.THERMOSTAT.label, DeviceType.AIR_CONDITIONER.label,
+        DeviceType.WEATHER.label, DeviceType.NEWS.label)
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -236,7 +250,9 @@ fun SmartDevicesDropDown(
                     .padding(15.dp)
             ) {
 
-                Text(text = countryList[selectIndex])
+                Text(text = deviceList[selectIndex])
+
+                Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "Arrow icon")
 
             }
 
@@ -245,7 +261,7 @@ fun SmartDevicesDropDown(
                 expanded = dropControl,
                 onDismissRequest = { dropControl = false}) {
 
-                countryList.forEachIndexed { index, strings ->
+                deviceList.forEachIndexed { index, strings ->
                     DropdownMenuItem(
                         text = {
                             Text(text = strings)

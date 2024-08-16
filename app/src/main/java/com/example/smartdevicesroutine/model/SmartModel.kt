@@ -23,25 +23,30 @@ abstract class SmartModel(
 
     // Update a generic value (could be overridden by specific smart devices/services)
     open fun updateValue(deviceType: String, value: Any): String {
-        if (deviceType.equals(DeviceType.THERMOSTAT.name, true)) {
+        if (deviceType.equals(DeviceType.THERMOSTAT.label, true) || deviceType.equals(DeviceType.AIR_CONDITIONER.label, true)) {
             println("$name temperature set to $value°C")
             return "$name temperature set to $value°C"
-            //println("$name temperature set to $value°C")
         }
 
-        if (deviceType == DeviceType.BULB.name) {
+        if (deviceType.equals(DeviceType.BULB.label, true) || deviceType.equals(DeviceType.SMART_WATCH.label, true)) {
             println("$name brightness set to $value%")
+            return "$name brightness set to $value%"
         }
 
-        if (deviceType == DeviceType.WEATHER.name) {
+        if (deviceType.equals(DeviceType.NEWS.label, true)) {
+            println("$name set to: $value")
+            return "$name set to: $value"
+        }
+
+        if (deviceType.equals(DeviceType.WEATHER.label, true)) {
             println("$name updated to $value")
+            return "$name updated to $value"
         }
 
 
         return ""
-        //println("$name updated with value: $value")
     }
 
     // Abstract function to define the specific behavior of each smart model
-    abstract fun performAction()
+    abstract fun performAction(): String
 }
