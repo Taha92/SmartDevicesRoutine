@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -37,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.smartdevicesroutine.Util.DeviceType
@@ -78,12 +80,14 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
     var description by remember { mutableStateOf("") }
     var selectedOption by remember { mutableStateOf("Option 1") }
     var startTime by remember { mutableStateOf(LocalTime.now()) }
-    var endTime by remember { mutableStateOf<LocalTime?>(null) }
+    var endTime by remember { mutableStateOf<LocalTime?>(LocalTime.now()) }
     var isToggled by remember { mutableStateOf(false) }
     var valueLabel by remember { mutableStateOf("") }
     var commandValue by remember { mutableStateOf("") }
+
     // State for managing the TimePickerDialog visibility
     var showStartTimePicker by remember { mutableStateOf(false) }
+    var showEndTimePicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
 
@@ -97,6 +101,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
         valueLabel = "e.g: Cloudy"
     }
 
+    // Start time dialog
     if (showStartTimePicker) {
         TimePickerDialog(
             context,
@@ -105,6 +110,18 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
                 showStartTimePicker = false // Dismiss the dialog after selection
             },
             startTime.hour, startTime.minute, true
+        ).show()
+    }
+
+    // End time dialog
+    if (showEndTimePicker) {
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                endTime = LocalTime.of(hourOfDay, minute)
+                showEndTimePicker = false // Dismiss the dialog after selection
+            },
+            endTime!!.hour, endTime!!.minute, true
         ).show()
     }
 
@@ -119,6 +136,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             onValueChange = { name = it },
             label = { Text("Title") },
             singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -129,7 +147,8 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             value = description,
             onValueChange = { description = it },
             label = { Text("Description") },
-            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -147,7 +166,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             value = commandValue,
             onValueChange = { commandValue = it },
             label = { Text(valueLabel.ifEmpty { "e.g: 25" }) },
-            maxLines = 1,
+            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -165,7 +184,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
         Spacer(modifier = Modifier.height(10.dp))
 
         // End Time Selection
-        TextButton(onClick = { /* Handle End Time Picker */ }) {
+        TextButton(onClick = { showEndTimePicker = true }) {
             Text(
                 "End Time: ${endTime?.format(timeFormatter) ?: "Not set"}",
                 style = MaterialTheme.typography.titleMedium
@@ -195,7 +214,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
                 name = name,
                 description = description,
                 startTime = startTime.toString(),
-                endTime = null
+                endTime = endTime.toString()
             )
             val device = SmartDevice(
                 name = selectedOption,

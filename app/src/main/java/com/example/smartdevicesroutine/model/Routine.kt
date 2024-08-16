@@ -3,13 +3,6 @@ package com.example.smartdevicesroutine.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 
-/*data class Routine(
-    val id: String,
-    val name: String,
-    val trigger: String,
-    val smartActions: List<String>,
-)*/
-
 @Entity(tableName = "routine")
 data class Routine(
     @ColumnInfo(name = "routine_name")
@@ -28,5 +21,5 @@ data class Routine(
     val startTime: String,  // e.g., 7 AM
 
     @ColumnInfo(name = "end_time")
-    val endTime: Long? = null  // Optional end time
+    val endTime: String? = null  // Optional end time
 )
