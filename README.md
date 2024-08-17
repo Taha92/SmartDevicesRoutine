@@ -4,8 +4,8 @@
 A smart home routine management app built using Jetpack Compose. The app allows users to manage smart devices and services, create routines, and automate their daily tasks or improve productivity.
 
 ## Features
-- **Dashboard with Smart Widgets:** Simulated smart devices such as smart watches, bulbs, thermostats, etc.
-- **Routine Creation:** Create new routines by selecting from available devices or services.
+- **Dashboard with Smart Widgets:** Simulated smart devices such as smart watches, bulbs, thermostats, weather, news etc.
+- **Routine Creation:** Create new routines by selecting from available devices or services and enable disable them.
 - **Routine Editing:** Edit and update routines to fine-tune them for better results.
 - **Room Database Integration:** Stores smart devices and routines locally.
 - **Dagger Hilt for Dependency Injection:** Provides a clean architecture with modular components.
