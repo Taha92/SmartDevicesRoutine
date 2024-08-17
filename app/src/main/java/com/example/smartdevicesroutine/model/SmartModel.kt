@@ -1,7 +1,5 @@
 package com.example.smartdevicesroutine.model
 
-import android.widget.Toast
-import androidx.compose.ui.text.toUpperCase
 import com.example.smartdevicesroutine.Util.DeviceType
 
 abstract class SmartModel(

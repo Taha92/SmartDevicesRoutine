@@ -11,12 +11,6 @@ data class Routine(
     @ColumnInfo(name = "description")
     val description: String,  // e.g., "Turn on thermostat and lights at 7 AM"
 
-    //val isActive: Boolean = true,
-
-    /*@Embedded
-    @ColumnInfo(name = "smart_model")
-    val smartModel: SmartModel,*/  // Embedded SmartModel for routine automation
-
     @ColumnInfo(name = "start_time")
     val startTime: String,  // e.g., 7 AM
 

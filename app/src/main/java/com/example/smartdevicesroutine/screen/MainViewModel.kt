@@ -45,12 +45,6 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    /*val smartDevices = repository.getAllDevices().stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(),
-        emptyList()
-    )*/
-
     fun addSmartDevice(device: SmartDevice) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertDevice(device)
@@ -61,6 +55,12 @@ class MainViewModel @Inject constructor(
     fun updateSmartDevice(device: SmartDevice) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateDevice(device)
+        }
+    }
+
+    fun deleteSmartDevice(device: SmartDevice) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteDevice(device)
         }
     }
 }

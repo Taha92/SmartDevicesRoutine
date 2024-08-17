@@ -98,7 +98,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
     }
 
     // Get label for device type
-    valueLabel = GetValueLabelByType(selectedOption)
+    valueLabel = getValueLabelByType(selectedOption)
 
     // Start time dialog
     if (showStartTimePicker) {
@@ -240,7 +240,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
 }
 
 @Composable
-fun GetValueLabelByType(selectedOption: String): String {
+fun getValueLabelByType(selectedOption: String): String {
     var valueLabel by remember { mutableStateOf("") }
 
     if (selectedOption.equals(DeviceType.THERMOSTAT.label, true) || selectedOption.equals(DeviceType.AIR_CONDITIONER.label, true)) {
