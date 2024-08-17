@@ -26,12 +26,45 @@ A smart home routine management app built using Jetpack Compose. The app allows 
 - **JDK 11+**
 - **Gradle**: Used as the build system.
 - **Docker**: For local deployment (optional).
-
+- **Minikube**: For running a local Kubernetes cluster (optional).
 ---
 
 ## How to Build the App
 
 1. **Clone the Repository:**
-   git clone https://github.com/yourusername/smart-devices-routine-app.git
+   ```bash
+   git clone https://github.com/Taha92/SmartDevicesRoutine.git
    cd smart-devices-routine-app
+
+## How to Test the App
+
+1. **Running Tests in Android Studio:**
+Right-click on the test folder under src/main and select Run 'All Tests'.
+
+2. **Running Tests from the Command Line:**
+   ```bash
+   ./gradlew test
+
+## Deploying the App Locally
+
+1. **Build the Docker Image:**
+Ensure your Docker daemon is running, and execute the following command to build the Docker image:
+   ```bash
+   docker build -t smart-devices-app:latest .
+
+2. **Start Minikube:**
+   ```bash
+   minikube start
+
+3. **Deploy the App to Minikube:**
+Create a Kubernetes deployment and service using your app’s Docker image:
+   ```bash
+   kubectl create deployment smart-devices-app --image=smart-devices-app:latest
+   kubectl expose deployment smart-devices-app --type=NodePort --port=8080
+
+4. **Access the App:**
+Use Minikube to access the NodePort service:
+   ```bash
+   minikube service smart-devices-app
+
 
