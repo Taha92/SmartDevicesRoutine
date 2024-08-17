@@ -71,13 +71,18 @@ class RepositoryTest {
         }
     }
 
-    /*@Test
+    @Test
     fun testDeleteDevice() {
-        val device = SmartDevice(id = 1, name = "Smart Light", isEnabled = true)
-        repository.insertDevice(device)
-        repository.deleteDevice(device)
-
         val devices = repository.getAllDevices()
-        assertEquals(0, devices.size)
-    }*/
+
+        runBlocking {
+            devices.collect { devicesList ->
+
+                repository.deleteDevice(devicesList.first())
+
+                assertEquals(0, devicesList.size)
+
+            }
+        }
+    }
 }
