@@ -23,9 +23,9 @@ data class SmartDevice(
     val routine: Routine?,
 
     @ColumnInfo(name = "value")
-    val value: String = ""
+    override var value: String = ""
 
-): SmartModel(name, isEnabled) {
+): SmartModel(name, isEnabled, value) {
     override fun performAction(): String {
         if (isEnabled) {
             if (type.equals(DeviceType.THERMOSTAT.label, true) || type.equals(DeviceType.AIR_CONDITIONER.label, true)) {

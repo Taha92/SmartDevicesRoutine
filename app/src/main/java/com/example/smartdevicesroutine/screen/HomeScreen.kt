@@ -44,10 +44,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.smartdevicesroutine.Util.DeviceType
 import com.example.smartdevicesroutine.model.Routine
 import com.example.smartdevicesroutine.model.SmartDevice
 import com.example.smartdevicesroutine.model.SmartModel
 import com.example.smartdevicesroutine.navigation.DevicesAppScreens
+import java.util.Collections
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,15 +57,12 @@ import com.example.smartdevicesroutine.navigation.DevicesAppScreens
 fun HomeScreen(navController: NavController, viewModel: MainViewModel) {
     val smartDevices = viewModel.smartDevices.collectAsState().value
 
-    //val routines by remember { mutableStateOf(viewModel.routines) }
-
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text("Smart Devices") }
+            title = { Text("Smart Device Routines") }
         )
     },
         floatingActionButton = {
-            // Add Routine Button
             FloatingActionButton(onClick = {
                 // Navigate to Routine Creation Screen
                 navController.navigate(DevicesAppScreens.AddRoutineScreen.name)
@@ -82,17 +81,19 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel) {
 }
 
 @Composable
-fun HomeContent(smartDevices: List<SmartDevice>, viewModel: MainViewModel) {
+fun HomeContent(routineList: List<SmartDevice>, viewModel: MainViewModel) {
     var showModal by remember { mutableStateOf(false) }
     var selectedRoutine by remember { mutableStateOf<SmartDevice?>(null) }
+    // Reverse the list to get the latest at top
+    Collections.reverse(routineList)
 
     Column(modifier = Modifier
         .fillMaxWidth()
     ) {
         LazyColumn {
-            items(smartDevices) { device ->
-                SmartDeviceItem(device, viewModel, onRoutineClick = {
-                    selectedRoutine = device
+            items(routineList) { routine ->
+                SmartDeviceRoutineItem(routine, viewModel, onRoutineClick = {
+                    selectedRoutine = routine
                     showModal = true
                 })
             }
@@ -115,13 +116,20 @@ fun HomeContent(smartDevices: List<SmartDevice>, viewModel: MainViewModel) {
 }
 
 @Composable
-fun SmartDeviceItem(
+fun SmartDeviceRoutineItem(
     device: SmartDevice,
     viewModel: MainViewModel,
     onRoutineClick: () -> Unit
 ) {
     var isEnabled by remember { mutableStateOf(device.isEnabled) }
     val context = LocalContext.current
+    val valueType = if (device.type.equals(DeviceType.THERMOSTAT.label, true) || device.type.equals(DeviceType.AIR_CONDITIONER.label, true)) {
+        "${device.value}°C"
+    } else if (device.type.equals(DeviceType.BULB.label, true) || device.type.equals(DeviceType.SMART_WATCH.label, true)) {
+        "${device.value}%"
+    } else {
+        device.value
+    }
 
     Card(modifier = Modifier
         .fillMaxWidth()
@@ -132,10 +140,7 @@ fun SmartDeviceItem(
             Text(text = device.routine!!.name, style = MaterialTheme.typography.bodyMedium)
             Text(text = device.routine.description, style = MaterialTheme.typography.titleMedium)
             Text(text = device.name)
-            Text(text = device.value)
-
-            //device.performAction()
-            //Toast.makeText(context, device.updateValue(device.type, 22), Toast.LENGTH_SHORT).show()
+            Text(text = valueType)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -153,9 +158,9 @@ fun SmartDeviceItem(
                 Switch(checked = isEnabled, onCheckedChange = { newStatus ->
                     isEnabled = newStatus
                     if (newStatus) {
-                        device.enable()
+                        Toast.makeText(context, device.enable(), Toast.LENGTH_SHORT).show()
                     } else {
-                        device.disable()
+                        Toast.makeText(context, device.disable(), Toast.LENGTH_SHORT).show()
                     }
                     viewModel.updateSmartDevice(device.copy(isEnabled = newStatus))
                 })

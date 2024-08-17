@@ -16,7 +16,8 @@ class ExampleUnitTest {
             name = "Smart Light",
             type = DeviceType.THERMOSTAT.label,
             routine = null,
-            isEnabled = true
+            isEnabled = true,
+            value = "20"
         )
     }
 
@@ -34,7 +35,7 @@ class ExampleUnitTest {
 
     @Test
     fun testUpdateTemperature() {
-        smartDevice.updateValue(DeviceType.THERMOSTAT.label, 24)
-        assertEquals(24, smartDevice.value)
+        smartDevice.updateValue(DeviceType.THERMOSTAT.label, "24")
+        assertEquals("24", smartDevice.value)
     }
 }

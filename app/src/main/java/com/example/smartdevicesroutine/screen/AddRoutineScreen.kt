@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -89,17 +92,13 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
     var showStartTimePicker by remember { mutableStateOf(false) }
     var showEndTimePicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
-
-
-    if (selectedOption.equals(DeviceType.THERMOSTAT.label, true) || selectedOption.equals(DeviceType.AIR_CONDITIONER.label, true)) {
-        valueLabel = "e.g: 10 °C"
-    } else if (selectedOption.equals(DeviceType.BULB.label, true) || selectedOption.equals(DeviceType.SMART_WATCH.label, true)) {
-        valueLabel = "e.g: 25"
-    }  else if (selectedOption.equals(DeviceType.NEWS.label, true)) {
-        valueLabel = "e.g: World Health Day"
-    }  else if (selectedOption.equals(DeviceType.WEATHER.label, true)) {
-        valueLabel = "e.g: Cloudy"
+    val valid = remember(name, description, commandValue
+    ) {
+        name.trim().isNotEmpty() && description.trim().isNotEmpty() && commandValue.trim().isNotEmpty()
     }
+
+    // Get label for device type
+    valueLabel = GetValueLabelByType(selectedOption)
 
     // Start time dialog
     if (showStartTimePicker) {
@@ -126,8 +125,10 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
     }
 
     Column(modifier = Modifier
-        .fillMaxWidth()
+        .fillMaxSize()
         .padding(16.dp)
+        .verticalScroll(rememberScrollState())
+        .imePadding()
     ) {
 
         // Routine Title
@@ -167,6 +168,7 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             onValueChange = { commandValue = it },
             label = { Text(valueLabel.ifEmpty { "e.g: 25" }) },
             singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -229,11 +231,29 @@ fun AddRoutineContent(mainViewModel: MainViewModel, navController: NavController
             onClick = { saveRoutine(mainViewModel, device, navController) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(50.dp),
+            enabled = valid
         ) {
             Text("Save")
         }
     }
+}
+
+@Composable
+fun GetValueLabelByType(selectedOption: String): String {
+    var valueLabel by remember { mutableStateOf("") }
+
+    if (selectedOption.equals(DeviceType.THERMOSTAT.label, true) || selectedOption.equals(DeviceType.AIR_CONDITIONER.label, true)) {
+        valueLabel = "e.g: 10 °C"
+    } else if (selectedOption.equals(DeviceType.BULB.label, true) || selectedOption.equals(DeviceType.SMART_WATCH.label, true)) {
+        valueLabel = "e.g: 25"
+    }  else if (selectedOption.equals(DeviceType.NEWS.label, true)) {
+        valueLabel = "e.g: World Health Day"
+    }  else if (selectedOption.equals(DeviceType.WEATHER.label, true)) {
+        valueLabel = "e.g: Cloudy"
+    }
+
+    return valueLabel
 }
 
 fun saveRoutine(mainViewModel: MainViewModel, device: SmartDevice, navController: NavController) {
