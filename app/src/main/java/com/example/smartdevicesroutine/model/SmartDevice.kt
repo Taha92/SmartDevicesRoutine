@@ -20,10 +20,10 @@ data class SmartDevice(
     override var isEnabled: Boolean,
 
     @Embedded
-    val routine: Routine,
+    val routine: Routine?,
 
     @ColumnInfo(name = "value")
-    val value: String
+    val value: String = ""
 
 ): SmartModel(name, isEnabled) {
     override fun performAction(): String {

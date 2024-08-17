@@ -129,7 +129,7 @@ fun SmartDeviceItem(
         .clickable { onRoutineClick() }
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            Text(text = device.routine.name, style = MaterialTheme.typography.bodyMedium)
+            Text(text = device.routine!!.name, style = MaterialTheme.typography.bodyMedium)
             Text(text = device.routine.description, style = MaterialTheme.typography.titleMedium)
             Text(text = device.name)
             Text(text = device.value)
@@ -172,7 +172,7 @@ fun BottomModal(
     onSave: (SmartDevice) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
-    var routineName by remember { mutableStateOf(routine.routine.description) }
+    var routineName by remember { mutableStateOf(routine.routine!!.description) }
     var routineValue by remember { mutableStateOf(routine.value) }
     val context = LocalContext.current
 
@@ -232,7 +232,7 @@ fun BottomModal(
                         // Save the updated routine
                         val updatedRoutine = routine.copy(
                             value = routineValue,
-                            routine = routine.routine.copy(description = routineName)
+                            routine = routine.routine!!.copy(description = routineName)
                         )
                         onSave(updatedRoutine)
                         Toast.makeText(context, routine.updateValue(routine.type, routineValue), Toast.LENGTH_SHORT).show()
