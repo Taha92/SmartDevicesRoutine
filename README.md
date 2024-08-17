@@ -14,6 +14,7 @@ A smart home routine management app built using Jetpack Compose. The app allows 
 ## Technology Stack
 - **Kotlin**
 - **Jetpack Compose**
+- **MVVM**
 - **Room Database**
 - **Dagger Hilt**
 - **Kotlin Coroutines & Flow**
